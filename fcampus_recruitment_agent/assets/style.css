@@ -1,0 +1,266 @@
+/* 校园实习招聘智能筛选 — 自定义样式 */
+
+/* 全局背景：柔和的浅灰，不刺眼 */
+.stApp {
+    background: #f8f9fb;
+}
+
+/* 主标题：不用渐变，干净的深灰 */
+h1 {
+    color: #1a202c !important;
+    font-weight: 700 !important;
+    font-size: 26px !important;
+    letter-spacing: -0.3px;
+    padding-bottom: 4px;
+}
+
+/* 副标题说明文字 */
+.stApp > header + div .stMarkdown p {
+    color: #64748b;
+    font-size: 14px;
+}
+
+/* 侧边栏：浅灰底，不用深色，更亲和 */
+section[data-testid="stSidebar"] {
+    background: #ffffff;
+    border-right: 1px solid #e8ecf1;
+}
+section[data-testid="stSidebar"] .stMarkdown,
+section[data-testid="stSidebar"] label,
+section[data-testid="stSidebar"] p {
+    color: #475569 !important;
+}
+section[data-testid="stSidebar"] h1,
+section[data-testid="stSidebar"] h2,
+section[data-testid="stSidebar"] h3 {
+    color: #1a202c !important;
+}
+
+/* 侧边栏小标题 */
+section[data-testid="stSidebar"] h3 {
+    font-size: 13px !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #94a3b8 !important;
+    margin-top: 16px !important;
+}
+
+/* 指标卡片：白底、圆角、细边框，不用粗左边线 */
+div[data-testid="stMetric"] {
+    background: white;
+    border-radius: 10px;
+    padding: 14px 18px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    border: 1px solid #eef0f4;
+}
+div[data-testid="stMetric"] label {
+    font-size: 12px !important;
+    color: #94a3b8 !important;
+    font-weight: 500;
+}
+div[data-testid="stMetric"] div[data-testid="stMetricValue"] {
+    font-size: 22px !important;
+    font-weight: 600 !important;
+    color: #1a202c !important;
+}
+
+/* 信息框：柔和 */
+.stAlert {
+    border-radius: 8px;
+    border: 1px solid #e8ecf1;
+    box-shadow: none;
+    padding: 12px 16px;
+}
+.stAlert p {
+    font-size: 14px;
+}
+
+/* 表格 */
+.stDataFrame {
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #e8ecf1;
+}
+
+/* 普通按钮：灰底深字，hover 微变 */
+.stButton > button {
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 14px;
+    transition: all 0.15s ease;
+    border: 1px solid #d8dde5;
+    color: #334155 !important;
+    background: #ffffff !important;
+    padding: 6px 16px;
+}
+.stButton > button:hover {
+    border-color: #94a3b8;
+    background: #f1f5f9 !important;
+    box-shadow: none;
+    transform: none;
+}
+
+/* 侧边栏按钮 */
+section[data-testid="stSidebar"] .stButton > button {
+    background: #f1f5f9 !important;
+    color: #475569 !important;
+    border: 1px solid #e2e8f0 !important;
+}
+section[data-testid="stSidebar"] .stButton > button:hover {
+    background: #e2e8f0 !important;
+}
+
+/* 主按钮：纯色深蓝，不用渐变 */
+.stButton > button[kind="primary"] {
+    background: #2563eb !important;
+    color: white !important;
+    border: 1px solid #2563eb !important;
+    font-weight: 600;
+}
+.stButton > button[kind="primary"]:hover {
+    background: #1d4ed8 !important;
+    border-color: #1d4ed8 !important;
+}
+
+/* 展开面板 */
+.streamlit-expanderHeader {
+    background: white;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 14px;
+    color: #334155;
+}
+
+/* 代码块 */
+.stCodeBlock {
+    border-radius: 6px;
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0;
+}
+.stCodeBlock code {
+    color: #475569 !important;
+    font-size: 12px;
+}
+
+/* 聊天消息 */
+.stChatMessage {
+    border-radius: 10px;
+    box-shadow: none;
+    border: 1px solid #eef0f4;
+}
+
+/* 上传区域 */
+[data-testid="stFileUploader"] {
+    border-radius: 8px;
+    border: 1.5px dashed #d8dde5;
+    background: white;
+}
+[data-testid="stFileUploader"]:hover {
+    border-color: #94a3b8;
+}
+
+/* 分隔线：极淡 */
+hr {
+    border: none;
+    height: 1px;
+    background: #e8ecf1;
+    margin: 20px 0;
+}
+
+/* 子标题：不用emoji也能有层次 */
+h2, h3 {
+    color: #1a202c;
+    font-weight: 600 !important;
+    font-size: 16px !important;
+}
+
+/* 文本区域 */
+.stTextArea textarea {
+    border-radius: 6px;
+    border: 1px solid #d8dde5;
+    font-size: 14px;
+}
+.stTextArea textarea:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37,99,235,0.1);
+}
+
+/* 选择框、输入框 */
+.stSelectbox > div > div,
+.stTextInput > div > div > input {
+    border-radius: 6px;
+    border: 1px solid #d8dde5;
+}
+
+/* caption 文字 */
+.stCaption, .stCaption p {
+    color: #94a3b8 !important;
+    font-size: 12px !important;
+}
+
+/* 标签页 */
+.stTabs [data-baseweb="tab-list"] {
+    gap: 8px;
+}
+.stTabs [data-baseweb="tab"] {
+    border-radius: 6px 6px 0 0;
+    padding: 8px 16px;
+    font-size: 14px;
+}
+
+/* 自定义结果卡片 */
+.result-card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px 24px;
+    border: 1px solid #eef0f4;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+}
+
+/* 等级标签 */
+.level-badge {
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+}
+.level-A { background: #dcfce7; color: #166534; }
+.level-B { background: #dbeafe; color: #1e40af; }
+.level-C { background: #fef3c7; color: #92400e; }
+.level-D { background: #fee2e2; color: #991b1b; }
+
+/* 技能标签 */
+.skill-tag {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    margin: 2px 4px 2px 0;
+}
+.skill-matched { background: #dcfce7; color: #166534; }
+.skill-missing { background: #fee2e2; color: #991b1b; }
+
+/* 隐藏 Streamlit 默认的菜单、页脚、顶部工具栏 */
+#MainMenu { visibility: hidden; }
+footer { visibility: hidden; }
+
+/* 隐藏右上角的 Stop / Deploy 按钮 */
+.stApp [data-testid="stToolbar"] {
+    display: none !important;
+}
+
+/* 隐藏运行状态指示器（Running...） */
+.stApp [data-testid="stStatusWidget"] {
+    display: none !important;
+}
+
+/* 隐藏顶部空白区域 */
+.stApp > header {
+    display: none !important;
+}
+
+/* 减少顶部留白 */
+.block-container {
+    padding-top: 2rem !important;
+}
