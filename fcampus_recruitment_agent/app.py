@@ -12,6 +12,7 @@ import pandas as pd
 import streamlit as st
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 from agent import (
     ResumeParser, JobParser, Screener, Reporter,
