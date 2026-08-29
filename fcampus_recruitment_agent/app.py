@@ -1068,4 +1068,4 @@ else:
                 st.write(f"**结论**：{r['conclusion']}")
                 st.write(f"**已匹配技能**：{', '.join(r['matched_skills']) if r['matched_skills'] else '无'}")
                 st.write(f"**缺失技能**：{', '.join(r['missing_skills']) if r['missing_skills'] else '无'}")
-                st.write(f"**改进建议*
+                st.write(f"**改进建议**：{r['suggestion']}")
