@@ -696,33 +696,42 @@ if mode == "单个简历筛选":
             st.divider()
             st.subheader("为你推荐其他岗位")
             st.caption("基于你的技能背景，以下岗位可能更匹配")
-            try:
-                candidate_skills = set(s.lower() for s in parsed_resume.get("skills", []))
-                job_scores = []
-                for _, jrow in jobs_df.iterrows():
-                    jparsed = job_parser.parse_csv_row(jrow.to_dict())
-                    jskills = set(s.lower() for s in jparsed.get("required_skills", []))
-                    if jskills:
-                        match = len(candidate_skills & jskills) / len(jskills) * 100
-                    else:
-                        match = 0
-                    if jparsed["title"] != parsed_job.get("title", ""):
-                        job_scores.append((jparsed["title"], jparsed.get("category", ""), match, jrow))
-                job_scores.sort(key=lambda x: x[2], reverse=True)
-                top3 = job_scores[:3]
-                if top3 and top3[0][2] > 0:
-                    rec_cols = st.columns(3)
-                    for i, (title, cat, match, jrow) in enumerate(top3):
-                        with rec_cols[i]:
-                            company = str(jrow.get("公司名称", ""))
-                            location = str(jrow.get("工作地点", ""))
-                            st.markdown(f"**{title}**")
-                            st.caption(f"{cat} | {company} | {location}")
-                            st.caption(f"技能匹配度：{match:.0f}%")
+                        try:
+                p_resume_rec = st.session_state.get("parsed_resume", {})
+                p_job_rec = st.session_state.get("parsed_job", {})
+                candidate_skills = set(s.lower() for s in p_resume_rec.get("skills", []))
+                if not candidate_skills:
+                    st.caption("未识别到技能，无法推荐岗位。请确保简历中包含技能信息。")
+                elif jobs_df.empty:
+                    st.caption("岗位数据为空，无法推荐。")
                 else:
-                    st.caption("暂未找到更匹配的岗位，建议提升核心技能后再尝试。")
-            except Exception:
-                st.caption("岗位推荐暂不可用")
+                    job_scores = []
+                    for _, jrow in jobs_df.iterrows():
+                        jparsed = job_parser.parse_csv_row(jrow.to_dict())
+                        jskills = set(s.lower() for s in jparsed.get("required_skills", []))
+                        if jskills:
+                            match = len(candidate_skills & jskills) / len(jskills) * 100
+                        else:
+                            match = 0
+                        current_title = p_job_rec.get("title", "") if p_job_rec else ""
+                        if jparsed.get("title", "") != current_title:
+                            company = str(jrow.get("公司名称", jrow.get("company", "")))
+                            location = str(jrow.get("工作地点", jrow.get("location", "")))
+                            job_scores.append((jparsed.get("title", "未知"), jparsed.get("category", ""), match, company, location))
+                    job_scores.sort(key=lambda x: x[2], reverse=True)
+                    top3 = job_scores[:3]
+                    if top3 and top3[0][2] > 0:
+                        rec_cols = st.columns(3)
+                        for i, (title, cat, match, company, location) in enumerate(top3):
+                            with rec_cols[i]:
+                                st.markdown(f"**{title}**")
+                                st.caption(f"{cat} | {company} | {location}")
+                                st.caption(f"技能匹配度：{match:.0f}%")
+                    else:
+                        st.caption("暂未找到更匹配的岗位，建议提升核心技能后再尝试。")
+            except Exception as e:
+                st.caption(f"岗位推荐暂不可用：{str(e)}")
+
 
         # ===== RAG 检索结果 =====
         if use_rag and rag_results:
@@ -922,12 +931,18 @@ if mode == "单个简历筛选":
             st.session_state["interview"] = None
             st.session_state["interview_answers"] = []
 
-        if st.button("开始模拟面试", use_container_width=True):
-            interviewer = InterviewSimulator(llm_client=llm_client if llm_client.is_ready() else None)
-            questions = interviewer.start(parsed_resume, parsed_job)
-            st.session_state["interview"] = interviewer
-            st.session_state["interview_answers"] = []
-            st.rerun()
+                if st.button("开始模拟面试", use_container_width=True):
+            p_resume = st.session_state.get("parsed_resume", {})
+            p_job = st.session_state.get("parsed_job", {})
+            if not p_resume or not p_job:
+                st.warning("请先完成简历筛选，再开始面试模拟。")
+            else:
+                interviewer = InterviewSimulator(llm_client=llm_client if llm_client.is_ready() else None)
+                questions = interviewer.start(p_resume, p_job)
+                st.session_state["interview"] = interviewer
+                st.session_state["interview_answers"] = []
+                st.rerun()
+
 
         interviewer = st.session_state.get("interview")
         if interviewer is not None:
