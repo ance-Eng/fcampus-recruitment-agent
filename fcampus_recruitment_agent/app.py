@@ -294,15 +294,13 @@ with st.sidebar:
     # ========== 大模型 API 配置 ==========
     st.divider()
     st.subheader("大模型配置")
-
-
+    # 优先从 Streamlit Secrets 读取
+    # 安全读取 Streamlit Secrets（没有配置文件时不报错）
     def _get_secret(key, default=""):
         try:
             return st.secrets.get(key, default)
         except Exception:
             return default
-
-
     secrets_api_key = _get_secret("api_key")
     secrets_base_url = _get_secret("base_url")
     secrets_model = _get_secret("model")
@@ -696,7 +694,7 @@ if mode == "单个简历筛选":
             st.divider()
             st.subheader("为你推荐其他岗位")
             st.caption("基于你的技能背景，以下岗位可能更匹配")
-                        try:
+            try:
                 p_resume_rec = st.session_state.get("parsed_resume", {})
                 p_job_rec = st.session_state.get("parsed_job", {})
                 candidate_skills = set(s.lower() for s in p_resume_rec.get("skills", []))
@@ -731,7 +729,6 @@ if mode == "单个简历筛选":
                         st.caption("暂未找到更匹配的岗位，建议提升核心技能后再尝试。")
             except Exception as e:
                 st.caption(f"岗位推荐暂不可用：{str(e)}")
-
 
         # ===== RAG 检索结果 =====
         if use_rag and rag_results:
@@ -931,7 +928,7 @@ if mode == "单个简历筛选":
             st.session_state["interview"] = None
             st.session_state["interview_answers"] = []
 
-                if st.button("开始模拟面试", use_container_width=True):
+        if st.button("开始模拟面试", use_container_width=True):
             p_resume = st.session_state.get("parsed_resume", {})
             p_job = st.session_state.get("parsed_job", {})
             if not p_resume or not p_job:
@@ -942,7 +939,6 @@ if mode == "单个简历筛选":
                 st.session_state["interview"] = interviewer
                 st.session_state["interview_answers"] = []
                 st.rerun()
-
 
         interviewer = st.session_state.get("interview")
         if interviewer is not None:
@@ -1072,4 +1068,4 @@ else:
                 st.write(f"**结论**：{r['conclusion']}")
                 st.write(f"**已匹配技能**：{', '.join(r['matched_skills']) if r['matched_skills'] else '无'}")
                 st.write(f"**缺失技能**：{', '.join(r['missing_skills']) if r['missing_skills'] else '无'}")
-                st.write(f"**改进建议**：{r['suggestion']}")
+                st.write(f"**改进建议*
