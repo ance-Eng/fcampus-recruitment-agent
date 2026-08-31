@@ -5,7 +5,6 @@
 """
 import json
 from typing import Callable, Dict, Any, Optional
-
 from .resume_parser import ResumeParser
 from .job_parser import JobParser
 from .screener import Screener
@@ -13,8 +12,6 @@ from .reporter import Reporter
 from .llm_enhancer import LLMEnhancer
 from .rag_engine import RAGEngine
 from .llm_client import LLMClient
-
-
 class Tool:
     """工具定义"""
     def __init__(self, name: str, description: str, parameters: dict, func: Callable):
@@ -22,14 +19,12 @@ class Tool:
         self.description = description
         self.parameters = parameters  # JSON Schema 格式
         self.func = func
-
     def to_dict(self) -> dict:
         return {
             "name": self.name,
             "description": self.description,
             "parameters": self.parameters,
         }
-
     def execute(self, **kwargs) -> str:
         """执行工具，返回字符串结果"""
         try:
@@ -39,43 +34,43 @@ class Tool:
             return str(result)
         except Exception as e:
             return f"[工具执行错误] {str(e)}"
-
-
 class ToolRegistry:
     """工具注册器"""
-
     def __init__(self, llm_client: LLMClient = None, rag_engine: RAGEngine = None):
         self.tools: Dict[str, Tool] = {}
         self.llm_client = llm_client
         self.rag_engine = rag_engine
         self._register_default_tools()
-
     def register(self, tool: Tool):
         self.tools[tool.name] = tool
-
     def get(self, name: str) -> Optional[Tool]:
         return self.tools.get(name)
-
     def list_tools(self) -> list:
         return [t.to_dict() for t in self.tools.values()]
-
     def execute(self, name: str, **kwargs) -> str:
         tool = self.get(name)
         if not tool:
             return f"[错误] 未知工具: {name}，可用工具: {list(self.tools.keys())}"
         return tool.execute(**kwargs)
-
     def get_system_prompt(self) -> str:
-        """生成工具列表的系统提示词"""
+        """生成工具列表的系统提示词（自然语言格式，LLM更容易理解参数要求）"""
         tools_desc = []
         for t in self.tools.values():
-            params = json.dumps(t.parameters, ensure_ascii=False)
-            tools_desc.append(f"- {t.name}: {t.description}\n  参数: {params}")
-        return "\n".join(tools_desc)
-
+            props = t.parameters.get("properties", {})
+            required = t.parameters.get("required", [])
+            params_desc = []
+            for pname, pinfo in props.items():
+                req_mark = "【必填】" if pname in required else "【可选】"
+                params_desc.append(f"    - {pname}: {req_mark}{pinfo.get('description', '')}")
+            params_str = "\n".join(params_desc)
+            tools_desc.append(
+                f"【{t.name}】\n"
+                f"  功能: {t.description}\n"
+                f"  参数:\n{params_str}"
+            )
+        return "\n\n".join(tools_desc)
     def _register_default_tools(self):
         """注册所有默认工具"""
-
         # 工具1：解析简历
         def parse_resume(resume_text: str, **kwargs) -> dict:
             parser = ResumeParser()
@@ -92,7 +87,6 @@ class ToolRegistry:
                 "internship": result["internship"],
                 "bonus_items": result["bonus_items"],
             }
-
         self.register(Tool(
             name="parse_resume",
             description="解析简历文本，提取姓名、学历、技能、项目经验、实习经历等结构化信息",
@@ -105,7 +99,6 @@ class ToolRegistry:
             },
             func=parse_resume,
         ))
-
         # 工具2：岗位匹配打分
         def match_job(resume_text: str, job_text: str, job_title: str = "", **kwargs) -> dict:
             rp = ResumeParser()
@@ -127,7 +120,6 @@ class ToolRegistry:
                 },
                 "suggestion": result["suggestion"],
             }
-
         self.register(Tool(
             name="match_job",
             description="将简历与岗位进行匹配打分，返回综合得分、评级、匹配/缺失技能、各维度分数",
@@ -142,7 +134,6 @@ class ToolRegistry:
             },
             func=match_job,
         ))
-
         # 工具3：RAG 知识库检索
         def rag_search(query: str, top_k: int = 5, **kwargs) -> dict:
             if not self.rag_engine:
@@ -156,7 +147,6 @@ class ToolRegistry:
                     for r in results
                 ],
             }
-
         self.register(Tool(
             name="rag_search",
             description="从知识库中检索与查询相关的岗位标准、面试题库、技术参考资料",
@@ -170,7 +160,6 @@ class ToolRegistry:
             },
             func=rag_search,
         ))
-
         # 工具4：候选人深度分析
         def analyze_candidate(resume_text: str, job_text: str, job_title: str = "", **kwargs) -> str:
             if not self.llm_client or not self.llm_client.is_ready():
@@ -186,7 +175,6 @@ class ToolRegistry:
             profile = enhancer.generate_profile(resume, job)
             deep = enhancer.deep_analysis(resume, job, result)
             return f"【综合评语】{comment}\n\n【候选人画像】{json.dumps(profile, ensure_ascii=False)}\n\n【深度分析】{deep}"
-
         self.register(Tool(
             name="analyze_candidate",
             description="调用大模型对候选人进行深度分析，生成综合评语、候选人画像、岗位适配深度分析",
@@ -201,7 +189,6 @@ class ToolRegistry:
             },
             func=analyze_candidate,
         ))
-
         # 工具5：生成面试问题
         def generate_questions(resume_text: str, job_text: str, job_title: str = "", **kwargs) -> list:
             if not self.llm_client or not self.llm_client.is_ready():
@@ -214,7 +201,6 @@ class ToolRegistry:
             result = sc.screen(resume, job)
             enhancer = LLMEnhancer(self.llm_client)
             return enhancer.generate_interview_questions(resume, job, result)
-
         self.register(Tool(
             name="generate_questions",
             description="根据候选人简历和岗位要求，生成5个针对性面试问题",
@@ -229,7 +215,6 @@ class ToolRegistry:
             },
             func=generate_questions,
         ))
-
         # 工具6：生成筛选报告
         def generate_report(resume_text: str, job_text: str, job_title: str = "", **kwargs) -> str:
             rp = ResumeParser()
@@ -240,7 +225,6 @@ class ToolRegistry:
             job = jp.parse(job_text, title=job_title)
             result = sc.screen(resume, job)
             return rep.to_text(result)
-
         self.register(Tool(
             name="generate_report",
             description="生成完整的筛选报告文本，包含得分、各维度分析、技能匹配、改进建议",
@@ -255,7 +239,6 @@ class ToolRegistry:
             },
             func=generate_report,
         ))
-
         # 工具7：计算技能匹配度
         def skill_match(resume_text: str, job_text: str, **kwargs) -> dict:
             rp = ResumeParser()
@@ -274,7 +257,6 @@ class ToolRegistry:
                 "missing": sorted(missing),
                 "coverage_rate": f"{coverage:.1%}",
             }
-
         self.register(Tool(
             name="skill_match",
             description="详细计算简历技能与岗位要求技能的匹配度，列出匹配和缺失的技能",
